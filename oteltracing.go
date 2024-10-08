@@ -53,7 +53,7 @@ func NewOtelTracingClient() (*OtelTracingClient, error) {
 }
 
 func (c *OtelTracingClient) CreateSpan(spanName string) trace.Span {
-	_, span := c.tracer.Start(context.Background(), spanName)
+	_, span := c.tracer.Start(context.Background(), spanName, trace.WithSpanKind(trace.SpanKindProducer))
 	return span
 }
 
