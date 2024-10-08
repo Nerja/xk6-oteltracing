@@ -15,7 +15,8 @@ import (
 )
 
 type OtelTracingClient struct {
-	tracer trace.Tracer
+	tracer        trace.Tracer
+	traceProvider *sdktrace.TracerProvider
 }
 
 func NewOtelTracingClient() (*OtelTracingClient, error) {
@@ -48,13 +49,18 @@ func NewOtelTracingClient() (*OtelTracingClient, error) {
 	otel.SetTracerProvider(tracerProvider)
 
 	return &OtelTracingClient{
-		tracer: otel.Tracer("k6"),
+		tracer:        otel.Tracer("k6"),
+		traceProvider: tracerProvider,
 	}, nil
 }
 
 func (c *OtelTracingClient) CreateSpan(spanName string) trace.Span {
 	_, span := c.tracer.Start(context.Background(), spanName, trace.WithSpanKind(trace.SpanKindProducer))
 	return span
+}
+
+func (c *OtelTracingClient) Close() error {
+	return c.traceProvider.Shutdown(context.Background())
 }
 
 func init() {
